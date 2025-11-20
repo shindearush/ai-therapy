@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Therapy</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Animated background particles */
+        .particle {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: float 15s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) translateX(0); }
+            25% { transform: translateY(-50px) translateX(30px); }
+            50% { transform: translateY(-100px) translateX(-30px); }
+            75% { transform: translateY(-50px) translateX(40px); }
+        }
+
+        .container {
+            text-align: center;
+            z-index: 10;
+            transition: all 0.5s ease;
+        }
+
+        h1 {
+            font-size: 4.5rem;
+            color: white;
+            margin-bottom: 2rem;
+            text-shadow: 2px 2px 20px rgba(0, 0, 0, 0.3);
+            letter-spacing: 3px;
+            animation: fadeInDown 1s ease;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .call-button {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            font-size: 2rem;
+            font-weight: bold;
+            padding: 25px 80px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            letter-spacing: 2px;
+            animation: fadeInUp 1s ease 0.3s both;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .call-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.4);
+        }
+
+        .call-button:active {
+            transform: translateY(-2px);
+        }
+
+        #videoContainer {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        #videoContainer.active {
+            display: flex;
+        }
+
+        #webcam {
+            width: 80%;
+            max-width: 900px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            animation: scaleIn 0.5s ease;
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .close-button {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            color: white;
+            font-size: 1.5rem;
+            padding: 15px 30px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .close-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        .status-text {
+            position: absolute;
+            bottom: 50px;
+            color: white;
+            font-size: 1.2rem;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px 30px;
+            border-radius: 25px;
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated background particles -->
+    <div class="particle" style="width: 80px; height: 80px; top: 10%; left: 15%; animation-delay: 0s;"></div>
+    <div class="particle" style="width: 60px; height: 60px; top: 60%; left: 80%; animation-delay: 2s;"></div>
+    <div class="particle" style="width: 100px; height: 100px; top: 80%; left: 10%; animation-delay: 4s;"></div>
+    <div class="particle" style="width: 70px; height: 70px; top: 30%; left: 70%; animation-delay: 6s;"></div>
+    <div class="particle" style="width: 90px; height: 90px; top: 50%; left: 50%; animation-delay: 8s;"></div>
+
+    <div class="container">
+        <h1>AI THERAPY</h1>
+        <button class="call-button" onclick="startCall()">CALL</button>
+    </div>
+
+    <div id="videoContainer">
+        <button class="close-button" onclick="endCall()">End Call</button>
+        <video id="webcam" autoplay playsinline></video>
+        <div class="status-text">Session in progress...</div>
+    </div>
+
+    <audio id="therapyAudio" preload="auto">
+        <!-- Using a relaxing ambient sound from a CDN -->
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        let stream = null;
+
+        async function startCall() {
+            const videoContainer = document.getElementById('videoContainer');
+            const webcam = document.getElementById('webcam');
+            const audio = document.getElementById('therapyAudio');
+
+            try {
+                // Request camera access
+                stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: true, 
+                    audio: false 
+                });
+
+                // Display video stream
+                webcam.srcObject = stream;
+                videoContainer.classList.add('active');
+
+                // Play audio
+                audio.currentTime = 0;
+                audio.play().catch(e => {
+                    console.log('Audio playback failed:', e);
+                });
+
+            } catch (error) {
+                alert('Unable to access camera. Please ensure you have granted camera permissions.');
+                console.error('Camera access error:', error);
+            }
+        }
+
+        function endCall() {
+            const videoContainer = document.getElementById('videoContainer');
+            const webcam = document.getElementById('webcam');
+            const audio = document.getElementById('therapyAudio');
+
+            // Stop video stream
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+
+            webcam.srcObject = null;
+            videoContainer.classList.remove('active');
+
+            // Stop audio
+            audio.pause();
+            audio.currentTime = 0;
+        }
+    </script>
+</body>
+</html>
